@@ -40,10 +40,12 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - [x] RAG verified end-to-end (OWASP WSTG knowledge base, 168 Markdown files)
 - [x] Environment audit completed — see `ARCHITECTURE.md`
 - [x] Safety backup of all persistent data — see `BACKUP.md`
-- [ ] Migrate Open WebUI to a persistent Docker volume
-- [ ] Reproducible `docker-compose.yml` + `.env.example`
-- [ ] Remote GPU instance (Oracle Cloud A10) + vLLM inference server
-- [ ] Connect Open WebUI to the remote endpoint; test and benchmark
+- [x] Migrated Open WebUI to a persistent Docker volume — see `MIGRATION.md`
+- [x] Reproducible `docker-compose.yml` + `.env.example`
+- [x] First remote GPU deployment on Vast.ai, connected and tested — see `REMOTE-GPU-VAST.md`
+- [ ] Secure the remote endpoint with an SSH tunnel
+- [ ] Automate remote setup (startup script) for one-command launch
+- [ ] Optional: revisit Oracle Cloud (A10) if GPU quota is unlocked
 
 ## Documentation
 
@@ -53,6 +55,7 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 | `ARCHITECTURE.md` | Design, audit findings, and technical decisions |
 | `INSTALLATION.md` | Local setup from scratch |
 | `MIGRATION.md` | Moving inference between GPU providers |
+| `REMOTE-GPU-VAST.md` | Runbook + record of the first Vast.ai GPU deployment |
 | `BACKUP.md` | Backup and restore of persistent data |
 | `SECURITY.md` | Secrets handling, network hardening, `.gitignore` rules |
 | `docker-compose.yml` | Reproducible local deployment |
