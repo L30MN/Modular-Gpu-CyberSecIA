@@ -1,0 +1,30 @@
+# --- Secrets: never commit ---
+.env
+*.key
+*.pem
+*.crt
+*_rsa
+*_ed25519
+
+# --- Local data: never publish (knowledge base, DB, backups) ---
+_backups/
+backups/
+data/
+webui.db
+webui.db-*
+vector_db/
+uploads/
+*.sqlite
+*.sqlite3
+
+# --- OS / editor junk ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# --- Python ---
+__pycache__/
+*.pyc
+.venv/
+venv/
