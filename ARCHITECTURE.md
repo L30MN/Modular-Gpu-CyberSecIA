@@ -22,7 +22,7 @@ Separate the **permanent infrastructure** from the **computational power**:
                                 │
                   ┌─────────────┴──────────────┐
                   │   Remote GPU (disposable)   │
-                  │   vLLM  →  large chat LLM    │
+                  │   Ollama → large chat LLM    │
                   │   Oracle A10 / Vast.ai 4090  │
                   └──────────────────────────────┘
 ```
@@ -41,10 +41,15 @@ Separate the **permanent infrastructure** from the **computational power**:
    API (`OPENAI_API_BASE_URL` + key). Both vLLM and Ollama expose this interface,
    so changing GPU provider means changing one endpoint — no rebuild.
 
-3. **vLLM preferred on the GPU side.**
-   For A10 / RTX 4090 class GPUs, vLLM gives higher throughput and better memory
-   management than Ollama, and is natively OpenAI-compatible. Ollama remains a
-   valid simpler fallback.
+3. **Ollama on the GPU side, by choice.**
+   This is a single-user assistant, so inference throughput and high concurrency
+   do not matter here. Ollama is chosen for simplicity: one command to run,
+   automatic GPU detection, trivial model pulling and swapping — which fits the
+   "disposable GPU, swap models freely" goal. vLLM gives higher throughput and
+   better memory use (PagedAttention), but those advantages pay off when serving
+   *many concurrent users*, not one. vLLM is also OpenAI-compatible, so it stays
+   the upgrade path if this ever needs to serve a team — not a default to reach for
+   in a single-user project.
 
 4. **All project state lives locally.**
    The GPU is stateless and disposable. Everything worth keeping — data, config,
