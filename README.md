@@ -45,10 +45,11 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - [x] First remote GPU deployment on Vast.ai, connected and tested — see `REMOTE-GPU-VAST.md`
 - [x] Knowledge base expanded: OWASP + MITRE ATT&CK, CWE and CAPEC converted to Markdown (`scripts/`)
 - [x] First agent: "Pentest Mentor" (system prompt + knowledge collections)
-- [ ] Secure the remote endpoint with an SSH tunnel
+- [x] Secure remote access via SSH tunnel (Ollama stays on localhost, reached only through the tunnel)
+- [x] Chose and verified an uncensored, tool-calling model: `huihui_ai/qwen2.5-abliterate:32b` — abliteration kept function calling; verified end-to-end on the Pentest Mentor (tool call + RAG + step-by-step methodology, in Italian)
 - [ ] Automate remote setup (startup script) for one-command launch
-- [ ] Choose and verify an uncensored, tool-calling-capable model
 - [ ] Build specialised agents with tool calling + an SSH "run-in-VM" executor tool
+- [ ] Set up an isolated vulnerable lab (red team + blue team) for practice
 - [ ] Optional: revisit Oracle Cloud (A10) if GPU quota is unlocked
 
 ## Documentation

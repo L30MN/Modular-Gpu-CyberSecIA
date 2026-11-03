@@ -144,6 +144,21 @@ Repeat for each candidate (e.g. Hermes 4, a Qwen-27B abliterated build) and keep
 the one that calls tools reliably. Only then set it as `OLLAMA_MODEL` for future
 instances.
 
+### Chosen model (verified)
+
+`huihui_ai/qwen2.5-abliterate:32b` — an uncensored (abliterated) Qwen2.5 32B,
+~19 GB, fits a 24–32 GB GPU. Verified on an RTX 4080S:
+
+- **Tool calling works** — the abliteration did not break function calling. The
+  model called the test tool and used its real output.
+- **Uncensored** — did not refuse offensive-security analysis.
+- **Coherent** and follows the system prompt (language, step-by-step method),
+  unlike small models.
+
+For future instances, set `OLLAMA_MODEL=huihui_ai/qwen2.5-abliterate:32b` so it is
+pulled on startup, and attach workspace tools at the **model level** (not per-chat,
+which does not persist) so agents always have their tools.
+
 ## Cost notes
 
 - Billed per hour only while the instance is **running** (GPU + disk).
