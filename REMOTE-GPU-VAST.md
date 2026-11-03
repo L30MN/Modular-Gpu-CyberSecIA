@@ -77,6 +77,73 @@ Then confirm from your own browser: `http://<host-ip>:<external-port>` should sh
 - Attach a knowledge collection with `#` and ask a question to confirm RAG works
   end-to-end.
 
+## Secure access via SSH tunnel (the intended setup)
+
+This replaces the insecure public-port path above. The remote Ollama stays on
+`localhost`; an SSH tunnel is the only way in, authenticated by your SSH key
+(served from the Bitwarden SSH agent).
+
+**Prerequisites:** the SSH public key is on the Vast account *before* the instance
+is created. In the instance config, leave `OLLAMA_MODEL` empty and do **not** set
+`OLLAMA_HOST` (Ollama stays on localhost).
+
+**1. Pull the model manually** (on the instance, via the Vast terminal):
+
+```bash
+ollama pull <model>          # e.g. a candidate to test; see model testing below
+```
+
+**2. Open the tunnel** from the local machine (PowerShell). Vast shows the SSH
+host and port in the instance's "SSH" panel.
+
+```bash
+ssh -p <ssh-port> -N -L 127.0.0.1:11435:localhost:11434 root@<host-ip>
+```
+
+- `-L 127.0.0.1:11435:localhost:11434` forwards local port **11435** to the
+  remote's `localhost:11434` (Ollama). Local **11435**, not 11434, avoids a clash
+  with the local embeddings Ollama.
+- `-N` holds the tunnel open without running a remote command. Leave the window
+  open while you work; closing it closes the tunnel.
+- Bitwarden prompts to approve using the key.
+
+**3. Point Open WebUI at the tunnel** (one-time): Admin → Settings → Connections →
+Ollama API → add `http://host.docker.internal:11435`. This address is **fixed**:
+only the tunnel command changes per instance (new `<host-ip>`/`<ssh-port>`), not
+the Open WebUI config.
+
+> **Docker reachability note (verify live):** Open WebUI runs in Docker and reaches
+> the host via `host.docker.internal`. A tunnel bound to `127.0.0.1` may not be
+> reachable from the container. If the connection does not turn green, re-open the
+> tunnel binding to all interfaces (`-L 0.0.0.0:11435:localhost:11434`) and add a
+> Windows Firewall block on inbound `11435` for the Public profile, as done for
+> ports 3000 and 11434.
+
+## Testing a model's tool calling
+
+Before committing to a model, verify it actually emits function calls (the failure
+that hit `dolphin3:8b`). Use a trivial, side-effect-free tool.
+
+**1. Create the tool:** Workspace → Tools → "+", paste `tools/example_tool.py`
+(in this repo), save.
+
+**2. Enable it** on a test model/agent (model editor → Tools → tick it).
+
+**3. Ask a question only the tool can answer**, e.g.:
+
+```
+Qual è lo stato del lab "alpha"?
+```
+
+- **Works:** the model calls `get_lab_status("alpha")` and reports the tool's
+  canned answer (you see the tool run in the response).
+- **Fails:** the model invents an answer or ignores the tool → it is not reliable
+  for agents; try another candidate.
+
+Repeat for each candidate (e.g. Hermes 4, a Qwen-27B abliterated build) and keep
+the one that calls tools reliably. Only then set it as `OLLAMA_MODEL` for future
+instances.
+
 ## Cost notes
 
 - Billed per hour only while the instance is **running** (GPU + disk).
