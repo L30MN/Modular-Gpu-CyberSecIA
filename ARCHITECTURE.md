@@ -50,6 +50,57 @@ Separate the **permanent infrastructure** from the **computational power**:
    The GPU is stateless and disposable. Everything worth keeping — data, config,
    knowledge base — is on the local machine and backed up.
 
+## Knowledge base
+
+The RAG knowledge base is built from four public security sources, each kept as a
+separate collection of small Markdown files (converted from their machine-readable
+originals by the scripts in `scripts/`):
+
+| Collection | Source format | Viewpoint it adds |
+|---|---|---|
+| **OWASP WSTG** | Markdown | How to *test* a weakness in a web app |
+| **CWE** | XML | The *flaw in the code*, with examples and fixes |
+| **CAPEC** | STIX JSON | How an attacker *exploits* it (attack pattern) |
+| **MITRE ATT&CK** | STIX JSON | Where it fits in a *real-world attack*, and which groups use it |
+
+The collections overlap on purpose: they describe the same topics from different
+angles, and cross-reference each other (CAPEC-66 → CWE-89 → OWASP SQL-injection
+testing). The embedding model and vector dimensions are fixed; changing the
+embedding model would require rebuilding every collection.
+
+## Agents and the execution model
+
+Agents are **not models**. An agent is a configuration — a system prompt, a set of
+attached knowledge collections, and a set of callable tools — that *uses* a model.
+Agents are defined in Open WebUI (custom models) and therefore live in the **local
+persistent layer**, independent of the GPU. One strong tool-calling model on the
+GPU can power many specialised agents; swapping the GPU does not touch them.
+
+The model that backs the agents must support **native function calling**
+reliably. This is in tension with "uncensored": crude abliterated fine-tunes often
+degrade tool-calling. The chosen model must be verified on real tool schemas, not
+picked from a ranking.
+
+When an agent acts on a lab, work runs in **three modular layers**:
+
+```
+Remote GPU (brain)        decides which tool to call, with which arguments
+      │  OpenAI-compatible API
+Local PC (orchestration)  Open WebUI runs the tool code (a thin wrapper)
+      │  SSH
+Lab VM (hands)            the command actually runs here, contained
+```
+
+The offensive tooling (nmap, etc.) stays **inside an isolated lab VM**; the tool on
+the PC is a thin SSH wrapper that runs the command there and returns the output.
+Swapping the lab (VirtualBox today, a cloud VM tomorrow) means changing the SSH
+target — the same "change one endpoint" principle as swapping the GPU.
+
+**Safety constraints:** tools act only on lab VMs the user owns or is authorised to
+test, on an isolated (host-only / internal) network; early agents propose commands
+for manual confirmation rather than executing autonomously. This belongs to a later
+phase — the prerequisite is a verified tool-calling model.
+
 ## Environment audit (2026-11-01)
 
 ### Current state

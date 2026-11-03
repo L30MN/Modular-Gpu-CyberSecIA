@@ -43,8 +43,12 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - [x] Migrated Open WebUI to a persistent Docker volume — see `MIGRATION.md`
 - [x] Reproducible `docker-compose.yml` + `.env.example`
 - [x] First remote GPU deployment on Vast.ai, connected and tested — see `REMOTE-GPU-VAST.md`
+- [x] Knowledge base expanded: OWASP + MITRE ATT&CK, CWE and CAPEC converted to Markdown (`scripts/`)
+- [x] First agent: "Pentest Mentor" (system prompt + knowledge collections)
 - [ ] Secure the remote endpoint with an SSH tunnel
 - [ ] Automate remote setup (startup script) for one-command launch
+- [ ] Choose and verify an uncensored, tool-calling-capable model
+- [ ] Build specialised agents with tool calling + an SSH "run-in-VM" executor tool
 - [ ] Optional: revisit Oracle Cloud (A10) if GPU quota is unlocked
 
 ## Documentation
