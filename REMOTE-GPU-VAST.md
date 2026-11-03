@@ -30,12 +30,20 @@ On the instance card, open the port mapping (click the IP). Ollama's internal
 port `11434` is mapped to an external port, e.g.:
 
 ```
-70.48.44.13:50500 -> 11434/tcp
+<host-ip>:<external-port> -> 11434/tcp
 ```
 
-The endpoint is then `http://<ip>:<external-port>` (here `http://70.48.44.13:50500`).
+The endpoint is then `http://<host-ip>:<external-port>`.
 
 ### 3. Fix the Ollama bind address (important gotcha)
+
+> ⚠️ **Security warning.** Setting `OLLAMA_HOST=0.0.0.0` together with Vast's public
+> port mapping exposes Ollama to the **public internet with no authentication** —
+> anyone who finds the address can use the rented GPU. This was done only as a quick
+> throwaway test on an obscure address. For real use, do **not** expose the port:
+> use an **SSH tunnel** instead and keep Ollama on `localhost`, so only your machine
+> can reach it (see `SECURITY.md`). The steps below describe the insecure test path;
+> the tunnel is the intended setup.
 
 By default the Vast Ollama template starts `ollama serve` bound to `localhost`,
 so the external port refuses connections (`ERR_CONNECTION_REFUSED`). Ollama's
@@ -51,14 +59,14 @@ supervisorctl restart ollama
 sleep 3 && curl -s http://localhost:11434                # "Ollama is running"
 ```
 
-Then confirm from your own browser: `http://<ip>:<external-port>` should show
+Then confirm from your own browser: `http://<host-ip>:<external-port>` should show
 `Ollama is running`.
 
 ### 4. Connect Open WebUI (local)
 
 - Admin Panel → Settings → Connections → Ollama API.
 - Keep the existing local entry (`host.docker.internal:11434`, used for
-  embeddings). **Add** the remote endpoint `http://<ip>:<external-port>`.
+  embeddings). **Add** the remote endpoint `http://<host-ip>:<external-port>`.
 - Refresh/verify — the connection turns green.
 
 ### 5. Test
