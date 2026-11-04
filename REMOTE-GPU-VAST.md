@@ -161,7 +161,7 @@ which does not persist) so agents always have their tools.
 
 ## Automation (one-command launch)
 
-Two scripts in `scripts/` plus a saved Vast template remove the manual setup.
+Two scripts in `/scripts` plus a saved Vast template remove the manual setup.
 
 **Vast template** (saved once, selected every time):
 
