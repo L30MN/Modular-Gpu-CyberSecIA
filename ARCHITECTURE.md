@@ -161,7 +161,9 @@ place.
 ## Lessons learned during setup
 
 - **Ollama must listen on all interfaces** for the Docker container to reach it:
-  set `OLLAMA_HOST=0.0.0.0` on the host, then restart Ollama.
+  set `OLLAMA_HOST=0.0.0.0` on the host, then restart Ollama. ⚠️ This also exposes
+  the local Ollama to the LAN: block inbound port `11434` from outside the machine
+  with a firewall rule (see the "Local Ollama note" in `SECURITY.md`).
 - **A corrupted embedding model** loads into memory but hangs forever on
   inference, with no error. Symptom: `/api/embed` never returns. Fix:
   `ollama rm nomic-embed-text && ollama pull nomic-embed-text`.
