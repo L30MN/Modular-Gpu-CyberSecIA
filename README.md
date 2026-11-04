@@ -66,7 +66,6 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - [x] Automate remote setup: saved Vast template + provisioning script + SSH-tunnel script (`scripts/`) — see `REMOTE-GPU-VAST.md`
 - [ ] Build specialised agents with tool calling + an SSH "run-in-VM" executor tool
 - [ ] Set up an isolated vulnerable lab (red team + blue team) for practice
-- [ ] Optional: revisit Oracle Cloud (A10) if GPU quota is unlocked
 
 > **On the autonomous agents (scope).** This project refers to AI agents that call
 > tools, and to a three-layer design in which an agent would *run* offensive tools
