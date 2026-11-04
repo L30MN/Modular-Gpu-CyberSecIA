@@ -73,38 +73,53 @@ angles, and cross-reference each other (CAPEC-66 → CWE-89 → OWASP SQL-inject
 testing). The embedding model and vector dimensions are fixed; changing the
 embedding model would require rebuilding every collection.
 
-## Agents and the execution model
+## Agents and the execution model (planned — see scope note)
+
+> **Scope note.** The autonomous part of this design — agents that *run* offensive
+> tools (scans and the like) against lab machines on their own — is **planned future
+> work and is deliberately not included in this version of the project**. It is
+> described here because choosing the model forced the question: the backing model
+> had to be verified as a reliable tool-caller (see `REMOTE-GPU-VAST.md`), and that
+> verification only makes sense against the agent design it is meant to serve. The
+> execution layer below will be built and **published separately**, once an
+> AI-driven attack has been run successfully and safely in an isolated lab. It is a
+> defined next phase, not an omission.
 
 Agents are **not models**. An agent is a configuration — a system prompt, a set of
 attached knowledge collections, and a set of callable tools — that *uses* a model.
 Agents are defined in Open WebUI (custom models) and therefore live in the **local
 persistent layer**, independent of the GPU. One strong tool-calling model on the
-GPU can power many specialised agents; swapping the GPU does not touch them.
+GPU can power many specialised agents; swapping the GPU does not touch them. The
+first agent, "Pentest Mentor", already exists — but it only reasons and cites the
+knowledge base; it does not execute anything.
 
 The model that backs the agents must support **native function calling**
 reliably. This is in tension with "uncensored": crude abliterated fine-tunes often
-degrade tool-calling. The chosen model must be verified on real tool schemas, not
-picked from a ranking.
+degrade tool-calling. This is why the chosen model was verified on a real tool
+schema rather than picked from a ranking.
 
-When an agent acts on a lab, work runs in **three modular layers**:
+**The execution model below is the planned design, not yet implemented.**
+
+When an agent *will* act on a lab, work *will* run in **three modular layers**:
 
 ```
-Remote GPU (brain)        decides which tool to call, with which arguments
+Remote GPU (brain)        will decide which tool to call, with which arguments
       │  OpenAI-compatible API
-Local PC (orchestration)  Open WebUI runs the tool code (a thin wrapper)
+Local PC (orchestration)  Open WebUI will run the tool code (a thin wrapper)
       │  SSH
-Lab VM (hands)            the command actually runs here, contained
+Lab VM (hands)            the command will actually run here, contained
 ```
 
-The offensive tooling (nmap, etc.) stays **inside an isolated lab VM**; the tool on
-the PC is a thin SSH wrapper that runs the command there and returns the output.
-Swapping the lab (VirtualBox today, a cloud VM tomorrow) means changing the SSH
-target — the same "change one endpoint" principle as swapping the GPU.
+The offensive tooling (nmap, etc.) will stay **inside an isolated lab VM**; the tool
+on the PC will be a thin SSH wrapper that runs the command there and returns the
+output. Swapping the lab (VirtualBox today, a cloud VM tomorrow) will mean changing
+the SSH target — the same "change one endpoint" principle as swapping the GPU.
 
-**Safety constraints:** tools act only on lab VMs the user owns or is authorised to
-test, on an isolated (host-only / internal) network; early agents propose commands
-for manual confirmation rather than executing autonomously. This belongs to a later
-phase — the prerequisite is a verified tool-calling model.
+**Safety constraints (for that future phase):** tools will act only on lab VMs the
+user owns or is authorised to test, on an isolated (host-only / internal) network;
+early agents will propose commands for manual confirmation rather than executing
+autonomously. The prerequisite is the verified tool-calling model, which is now in
+place.
 
 ## Environment audit (2026-11-01)
 

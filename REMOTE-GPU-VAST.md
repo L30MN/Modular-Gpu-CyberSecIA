@@ -159,6 +159,58 @@ For future instances, set `OLLAMA_MODEL=huihui_ai/qwen2.5-abliterate:32b` so it 
 pulled on startup, and attach workspace tools at the **model level** (not per-chat,
 which does not persist) so agents always have their tools.
 
+## Automation (one-command launch)
+
+Two scripts in `scripts/` plus a saved Vast template remove the manual setup.
+
+**Vast template** (saved once, selected every time):
+
+- Base: the official **Ollama** template, disk ~50 GB.
+- Environment variable `OLLAMA_MODEL=huihui_ai/qwen2.5-abliterate:32b` — the template
+  pulls the model on boot. The value is **case-sensitive**: it must be lowercase,
+  exactly as shown, or the pull fails.
+- Do **not** set `OLLAMA_HOST`: Ollama stays on `localhost`, reachable only through
+  the SSH tunnel.
+- Leave the template's own defaults (`PORTAL_CONFIG`, `DATA_DIRECTORY`, etc.) untouched.
+- The SSH key lives on the Vast **account**, not the template, and must be present
+  before renting.
+- Optional: paste `scripts/vast-provision.sh` into the template's **On-start Script**
+  field. With `OLLAMA_MODEL` already set the model is pulled regardless; the script
+  only adds a readiness wait and a verification (`ollama list`). `ollama pull` is
+  idempotent, so running both does no harm.
+
+**`scripts/vast-provision.sh`** (remote): waits for Ollama, pulls `OLLAMA_MODEL`
+(default `huihui_ai/qwen2.5-abliterate:32b`), prints `ollama list`. For the On-start
+field or a manual `bash vast-provision.sh` on the instance.
+
+**`scripts/open-tunnel.ps1`** (local, Windows/PowerShell): opens the SSH tunnel and
+forwards local **11435** to the instance's `localhost:11434`. Only this command
+changes per instance (new IP / SSH port); the Open WebUI endpoint stays fixed at
+`http://host.docker.internal:11435`.
+
+```powershell
+.\open-tunnel.ps1 -HostIp <host-ip> -SshPort <ssh-port>
+```
+
+It binds `0.0.0.0:11435` by default so the Open WebUI Docker container can reach it,
+which **requires** the Windows Firewall block on inbound 11435 (Public profile);
+`-BindAddress 127.0.0.1` is the firewall-independent alternative. It uses the SSH
+agent (Bitwarden prompts for the key), keeps the tunnel alive
+(`ServerAliveInterval`), and fails fast if 11435 is already in use
+(`ExitOnForwardFailure`). First run may need, once:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+**Per-session flow:**
+
+1. Vast → Templates → select the saved template → pick a GPU → Rent (model pulled
+   automatically).
+2. Local PC: `.\open-tunnel.ps1 -HostIp <ip> -SshPort <port>`.
+3. Open WebUI → select `qwen2.5-abliterate:32b` → work.
+4. Done: close the tunnel window and **destroy** the instance.
+
 ## Cost notes
 
 - Billed per hour only while the instance is **running** (GPU + disk).
@@ -178,5 +230,5 @@ which does not persist) so agents always have their tools.
   WebUI connection URL must be updated each time. An SSH tunnel fixes this too:
   Open WebUI points at a fixed local address, and only the tunnel command changes
   per instance.
-- **Automation:** fold the `OLLAMA_HOST` fix and model pull into a startup script
-  so a fresh instance is ready with one command.
+- **Automation:** done — see the "Automation" section above (saved Vast template +
+  `scripts/vast-provision.sh` + `scripts/open-tunnel.ps1`).

@@ -9,6 +9,12 @@ reached over a standardized API.
 The guiding principle: *the GPU is an engine you can swap, not the place where
 the project lives.*
 
+> **About this project.** This is my first end-to-end project. I have been studying
+> cybersecurity and AI for roughly two months, and I am building it in the open to
+> learn: documenting every decision and every dead end rather than hiding the rough
+> edges. Expect the perspective of a beginner trying to do things properly, not that
+> of a seasoned professional — feedback is welcome.
+
 ## Why this design
 
 Running large language models needs a powerful GPU. Renting one in the cloud is
@@ -34,6 +40,16 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - **Remote inference server** (vLLM or Ollama) — serves the large chat LLM on a rented GPU
 - **OpenAI-compatible API** — the standardized interface between Open WebUI and the remote GPU
 
+> **On the hardware and model choices (cost vs. power).** In this build I use a
+> rented **RTX 4080S (~$0.40/hr on Vast.ai)** and the model
+> **`huihui_ai/qwen2.5-abliterate:32b`** (~19 GB). That is a deliberate choice: I
+> looked for the most *efficient* setup — the best result for the least money —
+> not the most powerful one. The whole point of the modular design is that this is
+> not a ceiling. With no budget limit, the exact same project runs unchanged on far
+> stronger GPUs (A100, H100, …) and much larger models — you only change the remote
+> endpoint and the model name, nothing else in the architecture. Pick the GPU and
+> model that fit your budget; the infrastructure stays the same.
+
 ## Current status
 
 - [x] Local stack working (Open WebUI + Ollama + embeddings)
@@ -47,10 +63,21 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - [x] First agent: "Pentest Mentor" (system prompt + knowledge collections)
 - [x] Secure remote access via SSH tunnel (Ollama stays on localhost, reached only through the tunnel)
 - [x] Chose and verified an uncensored, tool-calling model: `huihui_ai/qwen2.5-abliterate:32b` — abliteration kept function calling; verified end-to-end on the Pentest Mentor (tool call + RAG + step-by-step methodology, in Italian)
-- [ ] Automate remote setup (startup script) for one-command launch
+- [x] Automate remote setup: saved Vast template + provisioning script + SSH-tunnel script (`scripts/`) — see `REMOTE-GPU-VAST.md`
 - [ ] Build specialised agents with tool calling + an SSH "run-in-VM" executor tool
 - [ ] Set up an isolated vulnerable lab (red team + blue team) for practice
 - [ ] Optional: revisit Oracle Cloud (A10) if GPU quota is unlocked
+
+> **On the autonomous agents (scope).** This project refers to AI agents that call
+> tools, and to a three-layer design in which an agent would *run* offensive tools
+> (scans and the like) against isolated lab machines on its own. That
+> autonomous-execution part is **intentionally not included in this version** — it is
+> a defined next phase, not something left out by accident. It appears here because
+> choosing the model forced the question: an uncensored model is only useful for this
+> if it can still call tools reliably, so that capability had to be verified (see
+> `REMOTE-GPU-VAST.md`). I will publish that part **separately**, once I have
+> successfully and safely automated an AI-driven attack inside a lab. The design is
+> described in `ARCHITECTURE.md`.
 
 ## Documentation
 
