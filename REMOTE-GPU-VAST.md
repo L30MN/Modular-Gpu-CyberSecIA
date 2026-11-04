@@ -7,7 +7,10 @@ knowledge base, and the embeddings. It doubles as a reusable runbook.
 ## Result
 
 - GPU: 1× RTX 4080S (32 GB VRAM), rented on Vast.ai, ~$0.40/hr.
-- Model: `qwen3.5:35b` (~22 GB) served by Ollama on the remote GPU.
+- Model: `qwen3.5:35b` (~22 GB) served by Ollama on the remote GPU — used **only
+  for this first connectivity test**. The model later chosen and verified for real
+  use is `huihui_ai/qwen2.5-abliterate:32b` (see "Chosen model (verified)" below);
+  the two names differ on purpose.
 - Local Open WebUI connected to the remote Ollama endpoint.
 - RAG verified: a PHP SQL-injection snippet was analysed correctly, with the
   model **citing the right OWASP WSTG source files** (SQL injection + MySQL),
@@ -71,7 +74,7 @@ Then confirm from your own browser: `http://<host-ip>:<external-port>` should sh
 
 ### 5. Test
 
-- New chat → select the remote model (`qwen3.5:35b`).
+- New chat → select the remote model (`qwen3.5:35b`, the first-test model used here).
 - First message is slow: the 22 GB model loads into VRAM (cold start, ~30–90 s).
   After that, responses are fast.
 - Attach a knowledge collection with `#` and ask a question to confirm RAG works
