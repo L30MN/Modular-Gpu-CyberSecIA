@@ -164,7 +164,7 @@ which does not persist) so agents always have their tools.
 
 ## Automation (one-command launch)
 
-Two scripts in `/scripts` plus a saved Vast template remove the manual setup.
+Two scripts in `scripts/` plus a saved Vast template remove the manual setup.
 
 **Vast template** (saved once, selected every time):
 
@@ -214,6 +214,30 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 3. Open WebUI → select `qwen2.5-abliterate:32b` → work.
 4. Done: close the tunnel window and **destroy** the instance.
 
+### Why the tunnel binds to `0.0.0.0` (and why that is still safe)
+
+Open WebUI runs inside a Docker container and reaches the host through
+`host.docker.internal`, which resolves to the host's gateway interface, **not** its
+loopback. A tunnel bound to `127.0.0.1` (loopback only) is therefore typically
+**not reachable** from the container. Binding to `0.0.0.0` makes local port 11435
+listen on all interfaces, which the container can reach.
+
+The trade-off: `0.0.0.0` also makes 11435 reachable from the local network. That is
+closed by a **Windows Firewall rule blocking inbound 11435 on the Public profile**
+(the same is done for 11434).
+
+| Reachable by… | `127.0.0.1` bind | `0.0.0.0` bind (current) |
+|---|---|---|
+| the Docker container | often no | yes |
+| the local network (LAN) | no | yes, unless blocked by the firewall |
+| the Internet | no | no (router NAT) |
+
+The project keeps `0.0.0.0` + the firewall rule: this preserves Docker connectivity
+without exposing the port beyond the machine. The Public-profile block covers
+untrusted networks; to also seal a LAN that Windows classifies as **Private**, add
+the same block on the Private profile. Open WebUI itself (port 3000) is additionally
+bound to `127.0.0.1` in `docker-compose.yml`, so it never listens on the LAN at all.
+
 ## Cost notes
 
 - Billed per hour only while the instance is **running** (GPU + disk).
@@ -223,15 +247,21 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 - First-run total for setup + testing was ~$0.50 (model download + ~37 min
   runtime while configuring).
 
-## Open items
+## Status of the earlier open items
 
-- **Security:** the Ollama port is currently exposed to the public internet with
-  no auth. Next step is an **SSH tunnel** so the endpoint is reachable only from
-  the local machine. The SSH key must be added to the Vast account *before*
-  creating the instance.
-- **Changing endpoint:** every new instance gets a new IP and port, so the Open
-  WebUI connection URL must be updated each time. An SSH tunnel fixes this too:
-  Open WebUI points at a fixed local address, and only the tunnel command changes
-  per instance.
-- **Automation:** done — see the "Automation" section above (saved Vast template +
+These were the open items from the first (insecure) test run at the top of this
+runbook. All are now resolved; this records the problem and the final state for
+traceability.
+
+- **Security — resolved.** The first test exposed the Ollama port on the public
+  internet with no authentication (see the warning in step 3). **That is no longer
+  the setup.** The remote Ollama now listens only on `localhost`, and access is
+  through an authenticated **SSH tunnel** (see "Secure access via SSH tunnel" and
+  "Automation" above). The SSH key is added to the Vast account before creating the
+  instance.
+- **Changing endpoint — resolved.** Every new instance still gets a new IP and SSH
+  port, but Open WebUI now points at a fixed local address
+  (`http://host.docker.internal:11435`); only the tunnel command changes per
+  instance, not the Open WebUI configuration.
+- **Automation — done.** See the "Automation" section above (saved Vast template +
   `scripts/vast-provision.sh` + `scripts/open-tunnel.ps1`).

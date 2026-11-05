@@ -121,9 +121,15 @@ early agents will propose commands for manual confirmation rather than executing
 autonomously. The prerequisite is the verified tool-calling model, which is now in
 place.
 
-## Environment audit (2026-11-01)
+## Environment audit (2026-11-01, project start)
 
-### Current state
+> **This section is historical.** It records the environment at the very start of
+> the project and the problems found then. Several items below (manual `docker run`
+> with no Compose, no data persistence, `dolphin3:8b`, no remote backend) were
+> **fixed during Phase 1** and do **not** describe the current setup — see "Phase 1
+> final state" at the end of this section.
+
+### State at the time of the audit (now superseded)
 
 | Component | State |
 |---|---|
@@ -157,6 +163,23 @@ place.
 - Docker + Open WebUI — do not reinstall.
 - Ollama + both models.
 - Local CPU embedding pipeline — already matches the target architecture.
+
+### Phase 1 final state
+
+By the end of Phase 1, the environment is:
+
+| Component | State |
+|---|---|
+| Startup | reproducible `docker-compose.yml` (external named volume) |
+| Open WebUI | persistent volume, bound to `127.0.0.1:3000` |
+| Chat model | `huihui_ai/qwen2.5-abliterate:32b` on a rented Vast.ai GPU |
+| Remote access | authenticated SSH tunnel; remote Ollama stays on `localhost` |
+| Embeddings | local Ollama → `nomic-embed-text` (CPU) |
+| RAG | OWASP + MITRE ATT&CK + CWE + CAPEC; hybrid search + reranker |
+| Agents | "Pentest Mentor" (knowledge base + verified tool calling) |
+
+The three problems above (no persistence, no Compose, weak RAG retrieval) are
+resolved, and `dolphin3:8b` was replaced as the chat model.
 
 ## Lessons learned during setup
 

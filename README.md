@@ -37,7 +37,7 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - **Open WebUI** — chat interface + knowledge base + RAG orchestration (Docker)
 - **Ollama** (local) — serves the embedding model on CPU
 - **nomic-embed-text** — embedding model (small, CPU-friendly, stays local)
-- **Remote inference server** (vLLM or Ollama) — serves the large chat LLM on a rented GPU
+- **Remote inference server** — **Ollama** serves the large chat LLM on a rented GPU (vLLM is the documented upgrade path — see `ARCHITECTURE.md`)
 - **OpenAI-compatible API** — the standardized interface between Open WebUI and the remote GPU
 
 > **On the hardware and model choices (cost vs. power).** In this build I use a
@@ -93,6 +93,7 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 | `docker-compose.yml` | Reproducible local deployment |
 | `.env.example` | Configuration template (no secrets) |
 | `scripts/` | Knowledge-base conversion scripts (+ their `README.md`) |
+| `prompts/` | Agent system prompts (in Italian by design — see `prompts/README.md`) |
 | `LICENSE` | MIT license |
 
 ## A note on data and privacy
