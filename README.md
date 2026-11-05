@@ -40,11 +40,12 @@ Swapping GPU provider (Oracle Cloud → Vast.ai → anything else) means changin
 - **Remote inference server** — **Ollama** serves the large chat LLM on a rented GPU (vLLM is the documented upgrade path — see `ARCHITECTURE.md`)
 - **OpenAI-compatible API** — the standardized interface between Open WebUI and the remote GPU
 
-> **On the hardware and model choices (cost vs. power).** In this build I use a
-> rented **RTX 4080S (~$0.40/hr on Vast.ai)** and the model
-> **`huihui_ai/qwen2.5-abliterate:32b`** (~19 GB). That is a deliberate choice: I
-> looked for the most *efficient* setup — the best result for the least money —
-> not the most powerful one. The whole point of the modular design is that this is
+> **On the hardware and model choices (cost vs. power).** The chat model is
+> **`huihui_ai/qwen2.5-abliterate:32b`** (~19 GB), which fits any **24–32 GB GPU**.
+> On Vast.ai the hourly price is **variable but typically ~$0.20–0.40/hr** for this
+> model (or similarly powerful ones); for my tests I rented an RTX 4080S. That is a
+> deliberate choice: I looked for the most *efficient* setup — the best result for
+> the least money — not the most powerful one. The whole point of the modular design is that this is
 > not a ceiling. With no budget limit, the exact same project runs unchanged on far
 > stronger GPUs (A100, H100, …) and much larger models — you only change the remote
 > endpoint and the model name, nothing else in the architecture. Pick the GPU and

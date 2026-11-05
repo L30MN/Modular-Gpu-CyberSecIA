@@ -2,9 +2,10 @@ services:
   open-webui:
     # Pinned to a specific image digest for reproducibility (instead of `:main`,
     # which floats to whatever is newest and could pull a breaking version).
+    # Open WebUI v0.13.0  —  digest verified 2026-11-05.
     # To update: `docker pull ghcr.io/open-webui/open-webui:main`, read the new
     # digest with `docker images --digests ghcr.io/open-webui/open-webui`, and
-    # replace the sha256 below.
+    # replace the version, date and sha256 below.
     image: ghcr.io/open-webui/open-webui@sha256:975e3965dcf5832804d2f77e167920794757027c5a2046917d42023d75fac431
     container_name: open-webui
     ports:

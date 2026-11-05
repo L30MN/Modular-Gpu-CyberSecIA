@@ -100,10 +100,17 @@ ollama pull <model>          # e.g. a candidate to test; see model testing below
 host and port in the instance's "SSH" panel.
 
 ```bash
-ssh -p <ssh-port> -N -L 127.0.0.1:11435:localhost:11434 root@<host-ip>
+ssh -p <ssh-port> -N -L 0.0.0.0:11435:localhost:11434 root@<host-ip>
 ```
 
-- `-L 127.0.0.1:11435:localhost:11434` forwards local port **11435** to the
+> ⚠️ The forward binds local port **11435** to `0.0.0.0` (all interfaces), **not**
+> `127.0.0.1`. This is required so the Open WebUI **Docker container** can reach the
+> tunnel via `host.docker.internal` — a loopback-only bind is typically unreachable
+> from the container. The trade-off: 11435 then also becomes reachable from the LAN,
+> so a **Windows Firewall rule must block inbound 11435** (Public profile; add
+> Private too to seal the LAN). See "Why the tunnel binds to `0.0.0.0`" below.
+
+- `-L 0.0.0.0:11435:localhost:11434` forwards local port **11435** to the
   remote's `localhost:11434` (Ollama). Local **11435**, not 11434, avoids a clash
   with the local embeddings Ollama.
 - `-N` holds the tunnel open without running a remote command. Leave the window
@@ -115,20 +122,34 @@ Ollama API → add `http://host.docker.internal:11435`. This address is **fixed*
 only the tunnel command changes per instance (new `<host-ip>`/`<ssh-port>`), not
 the Open WebUI config.
 
-> **Docker reachability note (verify live):** Open WebUI runs in Docker and reaches
-> the host via `host.docker.internal`. A tunnel bound to `127.0.0.1` may not be
-> reachable from the container. If the connection does not turn green, re-open the
-> tunnel binding to all interfaces (`-L 0.0.0.0:11435:localhost:11434`) and add a
-> Windows Firewall block on inbound `11435` for the Public profile, as done for
-> ports 3000 and 11434.
+> **If the connection does not turn green:** check that the tunnel window is still
+> open, that the IP/port match the current instance, and that the firewall rule
+> blocks 11435 only from *outside* the machine (it must not block the Docker
+> gateway). The automated `scripts/open-tunnel.ps1` uses this same `0.0.0.0`
+> binding by default.
 
 ## Testing a model's tool calling
 
 Before committing to a model, verify it actually emits function calls (the failure
 that hit `dolphin3:8b`). Use a trivial, side-effect-free tool.
 
-**1. Create the tool:** Workspace → Tools → "+", paste `tools/example_tool.py`
-(in this repo), save.
+**1. Create the tool:** Workspace → Tools → "+", paste the small side-effect-free
+tool below (it only returns a canned answer, so you can tell whether the model
+*called* it or invented the answer), then save:
+
+```python
+class Tools:
+    def get_lab_status(self, lab_name: str) -> str:
+        """Return the current status of a lab, given its name.
+
+        :param lab_name: the lab to check
+        :return: a string with the lab status
+        """
+        return (
+            f"Lab '{lab_name}': status ONLINE, 3 hosts up, "
+            f"no flag captured yet. (canned test answer from the tool)"
+        )
+```
 
 **2. Enable it** on a test model/agent (model editor → Tools → tick it).
 

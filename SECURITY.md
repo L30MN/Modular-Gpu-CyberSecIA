@@ -57,10 +57,18 @@ The remote inference server must not be exposed openly to the Internet.
 
 To let the Docker container reach Ollama, Ollama is set to listen on all
 interfaces (`OLLAMA_HOST=0.0.0.0`). This also makes it reachable from other
-devices on the local network. On a trusted home network the risk is low; to
-close it, add a firewall rule blocking inbound connections to port `11434` from
-outside the machine. The Docker container still reaches Ollama through Docker's
-internal gateway.
+devices on the local network. Do not assume a home network is safe — it may hold
+untrusted or compromised devices. Restrict the port with a firewall rule that
+blocks inbound connections to `11434` from outside the machine, to the isolation
+level you want (block the Public profile, and Private too to seal the LAN). The
+Docker container still reaches Ollama through Docker's internal gateway.
+
+Do not rely on the router's NAT alone to keep the port off the Internet: IPv6,
+UPnP and port forwarding can bypass it. The real guarantees are the firewall
+rules, plus keeping whatever can stay on `localhost` bound to `127.0.0.1` (as Open
+WebUI's port 3000 is). Note that from the repository one can see these rules are
+*documented*, not that they are *active* on a given machine — that must be
+verified on the machine itself.
 
 ## 3. Principle
 
