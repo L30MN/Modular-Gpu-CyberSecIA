@@ -15,7 +15,7 @@ is covered separately in `REMOTE-GPU-VAST.md`.
 ## 1. Clone and configure
 
 ```bash
-git clone https://github.com/LDRDMN/Modular-Gpu-CyberSecIA.git
+git clone https://github.com/L30MN/Modular-Gpu-CyberSecIA.git
 cd Modular-Gpu-CyberSecIA
 cp .env.example .env
 ```
